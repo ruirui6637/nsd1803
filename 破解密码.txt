@@ -1,0 +1,24 @@
+7之前的版本都有一种单用户模式，不需要密码，可以直接修改密码
+红帽7以后，单用户模式需要密码了，需要进入恢复模式，这个是不需要密码的
+
+1）要修改密码需要进入恢复模式，进入恢复模式不需要密码
+
+2）进入方法：在linux内核启动时加一个参数：rd.break，让linux在启动时，给一个中断信息，让他在启动时不要去加载用户表之类的东西，而是先进入恢复模式，恢复模式可以获得一个免密码的具有管理员权限的shell，而在这个shell环境中会把真正的根目录挂载到/sysroot下，方便我们管理员进行恢复操作，但是我们默认是只读挂载，不能进行写入操作，以防我们对系统进行误操作
+所以我们只需要进入恢复模式，并进入sysroot目录就能实现我们修改密码的操作了
+
+怎么进入这个恢复模式：开机的时候按2次e键，因为如果我们不按键的话，红帽7是默认直接进入系统不显示这个程序的，第二次e的含义就是编辑，进入编辑状态，然后就可以去进行修改内核参数了
+
+linux16这一行添加：rd.break  console=tty0 
+这里注意一下：我们在正常的Centos7和红帽7中只加rd.break就行了，但是在我们考试的时候只加这个是不好使的，需要加re.break console=tty0（这行其实前面有，只是没发挥作用）然后我们添加完成后，按Ctrl+x就可以用新的参数进入sysroot目录下进行操作了。
+
+只读挂载，给其写权限：mount -o remount,rw /sysroot
+想用sysroot下的命令，必须将sysroot当成一个根环境，执行：chroot /sysroot
+修改密码：echo redhat | passwd --stdin root
+selinux问题：由于开启状态，我们在没有selinux允许的条件下对系统进行了改动，我们的selinux就会认为系统不安全了，会拒绝启动系统，所以我们需要告知系统重建selinux的安全标签：touch /.autorelabel  #创建一个隐藏文件就行，而且里面不需要有内容，它的作用就是我们虚拟机下次开机时，告诉linux内核重新打一下标签，一次性，会自动删除：
+然后退出，重启就行了
+mount -o remount,rw /sysroot
+chroot /sysroot
+echo redhat | passwd --stdin root
+touch /.autorelabel
+exit
+reboot
