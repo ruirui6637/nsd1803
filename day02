@@ -1,0 +1,155 @@
+
+以太网
+	以太网MAC地址（也叫物理地址，硬件地址，十六进制数）
+		1字节 = 8比特
+	   以太网地址用来识别一个以太网上的某个单独的设备或一组设备
+
+
+	记：长度 48比特
+		前24位 厂家标识
+		后24位 硬件唯一标识
+
+	数据真中：目标地址和源地址，校验序列，数据的长度46～1500字节
+
+
+
+
+交换机：
+	默认全双工，分割冲突域
+	windows可以用ipconfig /all 查看mac地址
+
+
+VLAN： （范围 0～4095，普通交换机 0～1000）
+	作用：
+	  1.广播控制
+	  2.安全性
+	  3.带宽利用
+	  4.延迟
+	
+	默认：所有接口都在一个广播域中
+
+
+
+静态VLAN的配置
+	步骤：
+	1.创建VLAN Switch（config）#vlan 数字
+	2.给vlan取名字：Switch（config-vlan）#name 名字
+	3.继续添加vlan：Switch（config-vlan）#vlan 数字
+	4.把接口1添加进vlan中：
+		Switch（config）# interface fastethnet 0/1
+		Switch（config-if）#switchport access vlan 数字
+	5.删除：Switch（config）#no vlan 数字
+
+
+
+	正常的接口是不能配ip地址的
+	vlan内的接口可以配置ip（做了第三层网络层的事情）
+	Switch（config）# interface vlan 5
+	Switch（config-if）# ip address 192.168.0.5 255.255.255.0（子网掩码不能是简写的/24）
+
+	配网关	（必须是已有的网段）
+	Switch（config）# ip default-gateway 192.168.0.254
+
+
+	【查看配置的ip】
+	Switch # show run
+
+
+	【同时进入多个接口】
+	Switch（config）# interface range fastethernet 0/1-5（进入连续的）
+	Switch（config）# interface range fastethernet 0/1，f0/3（进入不连续的接口）
+
+
+	access：接入链路，可以承载一个vlan
+	trunk：中继链路，可以承载多个vlan
+
+
+
+	【修改模式】（只要配一个，另外一个会自动学习trunk模式）：
+		Switch（config）# interface fastethernet 0/3
+		Switch（config-if）# switchport mode trunk
+
+	【删除vlan】（限制某些vlan的通信）
+		Switch（config-if）# switchport trunk allowed vlan remove 10 （删除vlan10）
+
+	【添加vlan】：
+		Switch（config-if）# switchport trunk allowed vlan add 10
+
+
+
+	
+		Switch # show interface fastethernet 0/3 switchport
+
+
+
+
+	【以太通道】（实现的目的跟链路聚合一样）：
+		Switch（config）# interface range fastethernet 0/1-2 （同时进入1、2接口）
+		Switch（config-if-range）# channel-group 1（组合后的名字） mode on
+		Switch（config）# interface port-channel 1
+		Switch（config-if）# switchport mode trunk （组合的两个接口都要设置成trunk）
+	另一台交换机也做同样的动作（组合后的名字可以不一样，但是必须要设置成trunk）
+
+
+
+
+思路：
+	1.规划ip地址
+	2.添加vlan
+	3.添加端口到vlan
+
+
+
+	IEEE 802.1Q 公有标记
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
